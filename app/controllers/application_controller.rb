@@ -35,4 +35,31 @@ class ApplicationController < ActionController::Base
     render ({ :template => "calculation_templates/root_results.html.erb" })
   end
 
+
+  def blank_payment_form
+    render ({ :template => "calculation_templates/payment_form.html.erb" })
+  end
+
+  def calculate_payment
+    apr = params.fetch("apr").to_f.round(4)
+    @apr = apr.to_s( :percentage, { :precision => 4 })
+
+    num_years = params.fetch("num_years").to_i
+    @num_years = num_years
+
+    principal = params.fetch("principal").to_f
+    @principal = principal.to_s(:currency, { :precision => 2 })
+
+    monthly_interest = apr / 100 / 12
+    numerator =  monthly_interest * principal
+    denominator = 1 - (1 + monthly_interest) ** -(num_years * 12)
+    payment = numerator / denominator
+    
+    @payment = payment.to_s(:currency, { :precision => 2 })
+
+    
+    render ({ :template => "calculation_templates/payment_results.html.erb" })
+  end
+
+
 end
